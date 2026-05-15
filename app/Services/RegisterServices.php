@@ -9,11 +9,11 @@ use Illuminate\Support\Facades\Hash;
 class RegisterServices
 {
     /**
-     * Create a new class instance.
+     * Register User
      */
     public function register(array $data)
     {
-        return DB::transaction(function () use ($data){
+        return DB::transaction(function () use ($data) {
 
             $user = User::create([
                 'name' => $data['name'],
@@ -29,36 +29,31 @@ class RegisterServices
 
             return $user;
         });
-
     }
 
-    public function login(array $data){
+    /**
+     * Login User
+     */
+    public function login(array $data)
+    {
         $user = User::where('email', $data['email'])->first();
 
         if (!$user || !Hash::check($data['password'], $user->password)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Invalid credentials',
-            ], 401);
+            throw new \Exception('Invalid credentials');
         }
 
-        if($user->status !== 'active') {
-            return response()->json([
-                'success' => false,
-                'message' => 'User account is not active',
-            ], 403);
+        if ($user->status !== 'active') {
+            throw new \Exception('User account is not active');
         }
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
         $user->load('profile');
-        
+
         return [
             'user' => $user,
             'access_token' => $token,
             'token_type' => 'Bearer',
         ];
     }
-
-
 }

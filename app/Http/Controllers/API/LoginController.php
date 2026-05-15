@@ -21,9 +21,8 @@ class LoginController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'User registered successfully',
-            'user' =>new UserResource($user),
+            'user' => new UserResource($user),
         ], 201);
-
     }
 
     public function login(LoginRequest $request, RegisterServices $registerServices)
@@ -31,15 +30,18 @@ class LoginController extends Controller
         try {
             $result = $registerServices->login($request->validated());
 
-           return response()->json([
+            return response()->json([
                 'success'    => true,
                 'message'    => 'Login successful',
-                'data'       => new UserResource($result['user']),
-                'token'      => $result['access_token'],
-                'token_type' => $result['token_type'],
-            ]);
+                'data' => [
+                    'user' => $result['user'],
+                    'token'      => $result['access_token'],
+                    'token_type' => $result['token_type'],
+                ]
 
-        } catch (\Exception $e) {
+            ]);
+            
+        } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
                 'message' => $e->getMessage(),

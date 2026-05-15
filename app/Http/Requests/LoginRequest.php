@@ -27,4 +27,11 @@ class LoginRequest extends FormRequest
             'password' => ['required', 'string', 'min:8'],
         ];
     }
+
+    public function messages(): array
+    {
+        return [
+            'password.min' => 'Password must be at least 8 characters',
+        ];
+    }
 }
