@@ -6,7 +6,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
-class RegisterServices
+class AuthServices
 {
     /**
      * Register User
@@ -55,5 +55,36 @@ class RegisterServices
             'access_token' => $token,
             'token_type' => 'Bearer',
         ];
+    }
+
+    public function getProfile(User $user)
+    {
+        return $user->load('profile');
+
+    }
+
+    public function updateProfile(User $user, array $data)
+    {
+        DB::transaction(function () use ($user, $data) {
+
+            $user->update([
+                'name' => $data['name'] ?? $user->name,
+                'email' => $data['email'] ?? $user->email,
+            ]);
+
+            if (isset($data['profile'])) {
+                $user->profile()->update([
+                    'bio' => $data['profile']['bio'] ?? $user->profile?->bio,
+                    'phone' => $data['profile']['phone'] ?? $user->profile?->phone,
+                    'address' => $data['profile']['address'] ?? $user->profile?->address,
+                    'date_of_birth' => $data['profile']['date_of_birth'] ?? $user->profile?->date_of_birth,
+                    'gender' => $data['profile']['gender'] ?? $user->profile?->gender,
+                    'avatar' => $data['profile']['avatar'] ?? $user->profile?->avatar,
+
+                ]);
+            }
+        });
+
+        return $user->fresh('profile');
     }
 }
