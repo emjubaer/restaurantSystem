@@ -7,7 +7,6 @@ use App\Http\Requests\LoginRequest;
 use App\Http\Requests\ProfileUpdateRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Resources\UserResource;
-use App\Models\User;
 use App\Services\AuthServices;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
@@ -26,27 +25,25 @@ class LoginController extends Controller
     }
 
     public function login(LoginRequest $request, AuthServices $AuthServices)
-{
-    try {
+    {
+        try {
 
-        $result = $AuthServices->login($request->validated());
+            $result = $AuthServices->login($request->validated());
 
-        return $this->success('Login successful', [
-            'user' => $result['user'],
-            'token' => $result['access_token'],
-            'token_type' => $result['token_type'],
-        ], 200);
-
-    } catch (\Exception $e) {
+            return $this->success('Login successful', [
+                'token' => $result['access_token'],
+                'token_type' => $result['token_type'],
+            ], 200);
+        } catch (\Exception $e) {
             return $this->error($e->getMessage(), null, 401);
-                // return $this->error("Login failed", null, 401);
+            // return $this->error("Login failed", null, 401);
             // return response()->json([
             //     'success' => false,
             //     'message' => $e->getMessage(),
             //     'data' => null,
             // ], 401);
         }
-}
+    }
 
     public function logout(Request $request)
     {
@@ -55,12 +52,14 @@ class LoginController extends Controller
         return $this->success('Logout successfull', null, 200);
     }
 
-    public function profile(Request $request, AuthServices $authServices){
+    public function profile(Request $request, AuthServices $authServices)
+    {
         $data = $authServices->getProfile($request->user());
         return $this->success("Profile fetched successfully", new UserResource($request->user()), 200);
     }
 
-    public function updateProfile(ProfileUpdateRequest $updateRequest, AuthServices $authServices){
+    public function updateProfile(ProfileUpdateRequest $updateRequest, AuthServices $authServices)
+    {
         $user = $authServices->updateProfile($updateRequest->user(), $updateRequest->validated());
 
         return $this->success("Profile updated successfully", new UserResource($user), 200);

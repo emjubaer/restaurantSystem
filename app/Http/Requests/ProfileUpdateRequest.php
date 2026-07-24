@@ -12,7 +12,7 @@ class ProfileUpdateRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -23,7 +23,13 @@ class ProfileUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'name' => ['sometimes', 'string', 'max:255'],
+            'phone' => ['sometimes', 'string', 'max:11'],
+            'address' => ['sometimes', 'string', 'max:255'],
+            'gender' => ['sometimes', 'string', 'in:male,female,other'],
+            'bio' => ['sometimes', 'string', 'max:255'],
+            'date_of_birth' => ['sometimes', 'date'],
+            'avatar' => ['sometimes', 'file', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
         ];
     }
 }
