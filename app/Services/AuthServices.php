@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class AuthServices
 {
@@ -66,24 +67,28 @@ class AuthServices
     {
         DB::transaction(function () use ($user, $data) {
 
-            // update users table
             $user->update([
                 'name' => $data['name'] ?? $user->name,
             ]);
 
-            // avatar upload
             if (isset($data['avatar'])) {
+
+                // old avatar delete
+                if ($user->profile->avatar) {
+                    Storage::disk('public')->delete($user->profile->avatar);
+                }
+
+                // new avatar upload
                 $data['avatar'] = $data['avatar']->store('avatars', 'public');
             }
 
-            // update profile table
             $user->profile()->update([
-                'phone' => $data['phone'] ?? null,
-                'address' => $data['address'] ?? null,
-                'gender' => $data['gender'] ?? null,
-                'bio' => $data['bio'] ?? null,
-                'date_of_birth' => $data['date_of_birth'] ?? null,
-                'avatar' => $data['avatar'] ?? null,
+                'phone' => $data['phone'] ?? $user->profile->phone,
+                'address' => $data['address'] ?? $user->profile->address,
+                'gender' => $data['gender'] ?? $user->profile->gender,
+                'bio' => $data['bio'] ?? $user->profile->bio,
+                'date_of_birth' => $data['date_of_birth'] ?? $user->profile->date_of_birth,
+                'avatar' => $data['avatar'] ?? $user->profile->avatar,
             ]);
         });
 

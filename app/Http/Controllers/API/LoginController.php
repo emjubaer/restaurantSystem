@@ -19,16 +19,14 @@ class LoginController extends Controller
         $user = $register->register($request->validated());
 
         $user->load('profile');
-
         // Todo: Make a trait with name ApiResponse then create success and error method in that trait, then inherit in controller then use it here
         return $this->success('User registered successfully', new UserResource($user), 201);
     }
 
-    public function login(LoginRequest $request, AuthServices $AuthServices)
+    public function login(LoginRequest $request, AuthServices $authServices)
     {
         try {
-
-            $result = $AuthServices->login($request->validated());
+            $result = $authServices->login($request->validated());
 
             return $this->success('Login successful', [
                 'token' => $result['access_token'],
